@@ -1,25 +1,50 @@
 {
   "expo": {
-    "name": "junior-astronaut-mission-trainer",
+    "name": "Junior Astronaut Mission Trainer",
     "slug": "junior-astronaut-mission-trainer",
+    "scheme": "jamt",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#050709",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yasso.juniorastronauttrainer",
+      "infoPlist": {
+        "UIUserInterfaceStyle": "Dark"
+      }
     },
     "android": {
+      "package": "com.yasso.juniorastronauttrainer",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#050709",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/favicon.png",
+      "backgroundColor": "#050709",
+      "themeColor": "#00F0FF"
+    },
+    "plugins": [
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#050709",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 240,
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#050709",
+            "image": "./assets/splash-icon.png"
+          }
+        }
+      ]
+    ]
   }
 }

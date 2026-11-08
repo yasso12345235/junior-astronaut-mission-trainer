@@ -21,6 +21,11 @@ expo-env.d.ts
 # Metro
 .metro-health-check*
 
+# build output
+dist
+dist-check
+web-build/
+
 # debug
 npm-debug.*
 yarn-debug.*
