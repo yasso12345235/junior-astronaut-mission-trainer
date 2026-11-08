@@ -1,5 +1,6 @@
 import { Canvas, Circle, Path, Skia } from '@shopify/react-native-skia';
 import { memo, useMemo } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { withAlpha } from '../../../shared/design/theme';
 
@@ -17,7 +18,9 @@ export const Sparkline = memo(function Sparkline({
   width,
   height = 104,
 }: SparklineProps) {
+  const isWeb = Platform.OS === 'web';
   const geometry = useMemo(() => {
+    if (isWeb) return null;
     const points = data.length > 1 ? data : [data[0] ?? 0, data[0] ?? 0];
     const min = Math.min(...points, 0);
     const max = Math.max(...points, 100);
@@ -30,25 +33,33 @@ export const Sparkline = memo(function Sparkline({
       y: pad + innerHeight - ((value - min) / range) * innerHeight,
     }));
 
-    const line = Skia.PathBuilder.Make();
-    coords.forEach((point, index) => {
-      if (index === 0) line.moveTo(point.x, point.y);
-      else line.lineTo(point.x, point.y);
-    });
+    try {
+      const line = Skia?.PathBuilder?.Make ? Skia.PathBuilder.Make() : null;
+      if (!line) return null;
+      coords.forEach((point, index) => {
+        if (index === 0) line.moveTo(point.x, point.y);
+        else line.lineTo(point.x, point.y);
+      });
 
-    const area = Skia.PathBuilder.Make();
-    area.moveTo(coords[0]?.x ?? 0, height);
-    coords.forEach((point) => area.lineTo(point.x, point.y));
-    area.lineTo(coords[coords.length - 1]?.x ?? 0, height);
-    area.close();
+      const area = Skia.PathBuilder.Make();
+      area.moveTo(coords[0]?.x ?? 0, height);
+      coords.forEach((point) => area.lineTo(point.x, point.y));
+      area.lineTo(coords[coords.length - 1]?.x ?? 0, height);
+      area.close();
 
-    return {
-      line: line.detach(),
-      area: area.detach(),
-      last: coords[coords.length - 1],
-    };
-  }, [data, height, width]);
+      return {
+        line: line.detach(),
+        area: area.detach(),
+        last: coords[coords.length - 1],
+      };
+    } catch {
+      return null;
+    }
+  }, [data, height, width, isWeb]);
 
+  if (!geometry) {
+    return <View style={{ width, height }} />;
+  }
   return (
     <Canvas style={{ width, height }}>
       <Path path={geometry.area} style="fill" color={withAlpha(color, 0.12)} />

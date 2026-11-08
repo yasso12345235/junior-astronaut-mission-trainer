@@ -1,5 +1,8 @@
 {
   "expo": {
+    "experiments": {
+      "baseUrl": "/junior-astronaut-mission-trainer"
+    },
     "name": "Junior Astronaut Mission Trainer",
     "slug": "junior-astronaut-mission-trainer",
     "scheme": "jamt",
@@ -28,7 +31,8 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "backgroundColor": "#050709",
-      "themeColor": "#00F0FF"
+      "themeColor": "#00F0FF",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-font",

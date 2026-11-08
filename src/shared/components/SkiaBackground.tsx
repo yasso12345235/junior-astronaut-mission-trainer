@@ -2,7 +2,7 @@ import { Canvas, Fill, Shader, Skia } from '@shopify/react-native-skia';
 import { LinearGradient } from 'expo-linear-gradient';
 import { MotiView } from 'moti';
 import { useEffect, useMemo } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Easing, useDerivedValue, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 import { motiTiming } from '../design/motion';
@@ -67,7 +67,15 @@ export function SkiaBackground({
 }: SkiaBackgroundProps) {
   const { width, height } = useWindowDimensions();
   const clock = useSharedValue(0);
-  const shader = useMemo(() => Skia.RuntimeEffect.Make(SKSL), []);
+  const isWeb = Platform.OS === 'web';
+  const shader = useMemo(() => {
+    if (isWeb) return null;
+    try {
+      return Skia?.RuntimeEffect?.Make ? Skia.RuntimeEffect.Make(SKSL) : null;
+    } catch {
+      return null;
+    }
+  }, [isWeb]);
 
   useEffect(() => {
     clock.value = withRepeat(

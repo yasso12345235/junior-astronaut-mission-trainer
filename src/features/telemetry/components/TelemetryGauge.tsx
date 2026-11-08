@@ -1,6 +1,6 @@
 import { BlurMask, Canvas, Path, Skia } from '@shopify/react-native-skia';
 import { memo, useEffect, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Easing, useSharedValue, withTiming } from 'react-native-reanimated';
 
 import { fonts, palette } from '../../../shared/design/tokens';
@@ -31,17 +31,23 @@ export const TelemetryGauge = memo(function TelemetryGauge({
   const inset = strokeWidth / 2 + 2;
   const progress = useSharedValue(Math.min(1, Math.max(0, value / max)));
 
-  const arc = useMemo(
-    () =>
-      Skia.PathBuilder.Make()
-        .addArc(
-          Skia.XYWHRect(inset, inset, size - inset * 2, size - inset * 2),
-          135,
-          270,
-        )
-        .detach(),
-    [inset, size],
-  );
+  const isWeb = Platform.OS === 'web';
+  const arc = useMemo(() => {
+    if (isWeb) return null;
+    try {
+      return Skia?.PathBuilder?.Make
+        ? Skia.PathBuilder.Make()
+            .addArc(
+              Skia.XYWHRect(inset, inset, size - inset * 2, size - inset * 2),
+              135,
+              270,
+            )
+            .detach()
+        : null;
+    } catch {
+      return null;
+    }
+  }, [inset, size, isWeb]);
 
   useEffect(() => {
     progress.value = withTiming(Math.min(1, Math.max(0, value / max)), {
@@ -52,36 +58,50 @@ export const TelemetryGauge = memo(function TelemetryGauge({
 
   return (
     <View style={[styles.wrapper, { width: size, height: size }]}>
-      <Canvas style={StyleSheet.absoluteFill}>
-        <Path
-          path={arc}
-          style="stroke"
-          strokeWidth={strokeWidth}
-          strokeCap="round"
-          color="rgba(255,255,255,0.075)"
+      {isWeb || !arc ? (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              borderRadius: size / 2,
+              borderWidth: strokeWidth,
+              borderColor: color,
+              opacity: 0.35,
+            },
+          ]}
         />
-        <Path
-          path={arc}
-          style="stroke"
-          strokeWidth={strokeWidth * 2.6}
-          strokeCap="round"
-          color={color}
-          start={0}
-          end={progress}
-          opacity={0.28}
-        >
-          <BlurMask blur={10} style="solid" respectCTM={false} />
-        </Path>
-        <Path
-          path={arc}
-          style="stroke"
-          strokeWidth={strokeWidth}
-          strokeCap="round"
-          color={color}
-          start={0}
-          end={progress}
-        />
-      </Canvas>
+      ) : (
+        <Canvas style={StyleSheet.absoluteFill}>
+          <Path
+            path={arc}
+            style="stroke"
+            strokeWidth={strokeWidth}
+            strokeCap="round"
+            color="rgba(255,255,255,0.075)"
+          />
+          <Path
+            path={arc}
+            style="stroke"
+            strokeWidth={strokeWidth * 2.6}
+            strokeCap="round"
+            color={color}
+            start={0}
+            end={progress}
+            opacity={0.28}
+          >
+            <BlurMask blur={10} style="solid" respectCTM={false} />
+          </Path>
+          <Path
+            path={arc}
+            style="stroke"
+            strokeWidth={strokeWidth}
+            strokeCap="round"
+            color={color}
+            start={0}
+            end={progress}
+          />
+        </Canvas>
+      )}
       <View style={styles.center} pointerEvents="none">
         <Text style={styles.value} numberOfLines={1} adjustsFontSizeToFit>
           {value.toFixed(decimals)}
