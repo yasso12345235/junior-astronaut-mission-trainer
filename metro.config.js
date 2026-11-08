@@ -1,11 +1,12 @@
 const { getDefaultConfig } = require('expo/metro-config');
 
-/** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
+module.exports = (async () => {
+  const config = await getDefaultConfig(__dirname);
 
-// Force Babel transform profile for web (Hermes is native-only)
-if (!config.server) config.server = {};
-config.server.unstable_transformProfile = 'default';
-config.server.unstable_enablePackageExports = true;
+  // Force Babel transform profile for web (Hermes is native-only).
+  // Without this, the web bundle returns 500 and the app shows a white screen.
+  if (!config.server) config.server = {};
+  config.server.unstable_transformProfile = 'default';
 
-module.exports = config;
+  return config;
+})();
